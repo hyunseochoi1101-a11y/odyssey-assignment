@@ -691,8 +691,21 @@ app.openapi(customersRoute, async (c) => {
       name: customers.name,
       email: customers.email,
       phone: customers.phone,
-      orderCount: sql<number>`count(${orders.id})`,
-      totalSpendCents: sql<number>`coalesce(sum(${orders.totalCents}), 0)`,
+      orderCount: sql<number>`
+  count(${orders.id})
+  filter (
+    where ${orders.status} <> 'cancelled'
+  )
+`,
+totalSpendCents: sql<number>`
+  coalesce(
+    sum(${orders.totalCents})
+    filter (
+      where ${orders.status} <> 'cancelled'
+    ),
+    0
+  )
+`,
     })
     .from(customers)
     .leftJoin(orders, eq(customers.id, orders.customerId))
@@ -700,8 +713,21 @@ app.openapi(customersRoute, async (c) => {
 
     const [guestStats] = await db
   .select({
-    orderCount: sql<number>`count(${orders.id})`,
-    totalSpendCents: sql<number>`coalesce(sum(${orders.totalCents}), 0)`,
+    orderCount: sql<number>`
+      count(${orders.id})
+      filter (
+        where ${orders.status} <> 'cancelled'
+      )
+    `,
+    totalSpendCents: sql<number>`
+      coalesce(
+        sum(${orders.totalCents})
+        filter (
+          where ${orders.status} <> 'cancelled'
+        ),
+        0
+      )
+    `,
   })
   .from(orders)
   .where(isNull(orders.customerId))
@@ -862,13 +888,18 @@ app.openapi(customerDetailRoute, async (c) => {
 
     const recentOrders =
       await addItemsToOrders(guestOrders)
+    
+    const completedGuestOrders =
+  guestOrders.filter(
+    (order) => order.status !== 'cancelled'
+  )
 
     const totalSpendCents =
-      guestOrders.reduce(
-        (total, order) =>
-          total + order.totalCents,
-        0
-      )
+  completedGuestOrders.reduce(
+    (total, order) =>
+      total + order.totalCents,
+    0
+  )
 
     return c.json({
       customer: {
@@ -876,7 +907,7 @@ app.openapi(customerDetailRoute, async (c) => {
         name: 'Guest',
         email: null,
         phone: null,
-        orderCount: guestOrders.length,
+        orderCount: completedGuestOrders.length,
         totalSpendCents,
         recentOrders,
       },
@@ -910,21 +941,26 @@ app.openapi(customerDetailRoute, async (c) => {
       eq(orders.customerId, customerId)
     )
     .orderBy(desc(orders.createdAt))
+  
+  const completedCustomerOrders =
+  customerOrders.filter(
+    (order) => order.status !== 'cancelled'
+  )
 
   const recentOrders =
     await addItemsToOrders(customerOrders)
 
   const totalSpendCents =
-    customerOrders.reduce(
-      (total, order) =>
-        total + order.totalCents,
-      0
-    )
+  completedCustomerOrders.reduce(
+    (total, order) =>
+      total + order.totalCents,
+    0
+  )
 
   return c.json({
     customer: {
       ...customer,
-      orderCount: customerOrders.length,
+      orderCount: completedCustomerOrders.length,
       totalSpendCents,
       recentOrders,
     },
@@ -1040,24 +1076,54 @@ app.openapi(summaryRoute, async (c) => {
 
   const [summary] = await db
     .select({
-      totalOrders: sql<number>`count(${orders.id})`,
-      revenueCents: sql<number>`coalesce(sum(${orders.totalCents}), 0)`,
-      pendingOrders: sql<number>`
-        count(*) filter (where ${orders.status} = 'pending')
-      `,
-    })
+    totalOrders: sql<number>`
+      count(${orders.id})
+      filter (
+        where ${orders.status} <> 'cancelled'
+      )
+    `,
+    revenueCents: sql<number>`
+      coalesce(
+        sum(${orders.totalCents})
+        filter (
+          where ${orders.status} <> 'cancelled'
+        ),
+        0
+      )
+    `,
+    pendingOrders: sql<number>`
+      count(*)
+      filter (
+        where ${orders.status} = 'pending'
+      )
+    `,
+  })
     .from(orders)
 
   const popularItems = await db
-    .select({
-      name: menuItems.name,
-      quantitySold: sql<number>`coalesce(sum(${orderItems.quantity}), 0)`,
-    })
-    .from(orderItems)
-    .innerJoin(menuItems, eq(orderItems.menuItemId, menuItems.id))
-    .groupBy(menuItems.id)
-    .orderBy(desc(sql`sum(${orderItems.quantity})`))
-    .limit(5)
+  .select({
+    name: menuItems.name,
+    quantitySold: sql<number>`
+      coalesce(sum(${orderItems.quantity}), 0)
+    `,
+  })
+  .from(orderItems)
+  .innerJoin(
+    menuItems,
+    eq(orderItems.menuItemId, menuItems.id)
+  )
+  .innerJoin(
+    orders,
+    eq(orderItems.orderId, orders.id)
+  )
+  .where(
+    sql`${orders.status} <> 'cancelled'`
+  )
+  .groupBy(menuItems.id)
+  .orderBy(
+    desc(sql`sum(${orderItems.quantity})`)
+  )
+  .limit(5)
 
   return c.json({
     ...summary,
