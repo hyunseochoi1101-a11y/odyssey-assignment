@@ -4,11 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "turbo dev",
-  "build": "turbo build",
-  "typecheck": "turbo typecheck",
-  "test": "turbo test"
-},
+    "dev": "turbo dev",
+    "dev:dashboard": "pnpm --filter dashboard web",
+    "dev:backend": "pnpm --filter backend dev",
+    "gen:contract": "pnpm --filter api-client generate",
+    "build": "turbo build",
+    "lint": "eslint apps/dashboard/App.tsx apps/dashboard/index.ts apps/dashboard/src services/backend/src packages/shared/src packages/api-client/orval.config.ts",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -21,6 +25,9 @@
   },
   "type": "module",
   "devDependencies": {
-    "turbo": "^2.10.9"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.1",
+    "turbo": "^2.10.9",
+    "typescript-eslint": "^8.67.0"
   }
 }

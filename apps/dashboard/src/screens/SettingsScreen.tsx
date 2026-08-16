@@ -7,7 +7,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Button } from 'shared/button'
 import { useEffect, useState } from 'react'
 import {
-  Pressable,
   StyleSheet,
   Switch,
   Text,
@@ -135,6 +134,11 @@ export function SettingsScreen() {
             onValueChange={setOrderingEnabled}
           />
         </View>
+        {!orderingEnabled ? (
+  <Text style={styles.warningText}>
+    Ordering is disabled. New orders cannot be created.
+  </Text>
+) : null}
 
         <Button
   label={
@@ -253,6 +257,14 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
   },
+
+warningText: {
+  marginTop: 10,
+  marginBottom: 14,
+  color: '#92400E',
+  fontSize: 14,
+  fontWeight: '600',
+},
 
   successText: {
     marginTop: 14,

@@ -60,15 +60,6 @@ app.use(
   })
 )
 
-const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
-  pending: ['accepted', 'cancelled'],
-  accepted: ['preparing', 'cancelled'],
-  preparing: ['ready', 'cancelled'],
-  ready: ['completed'],
-  completed: [],
-  cancelled: [],
-}
-
 app.get('/', (c) => {
   return c.json({ message: 'Odyssey backend is running' })
 })

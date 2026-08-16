@@ -374,6 +374,32 @@ Creating and updating menu items
 
 This keeps frontend API types aligned with the backend contract.
 
+Architecture Decisions
+
+The project is organized as a pnpm/Turborepo monorepo so the dashboard, backend, generated API client, and shared UI can evolve together while remaining independently runnable.
+
+The backend uses Drizzle as the database schema source, drizzle-zod for validation/schema derivation, Hono with OpenAPI for the HTTP contract, and Orval to generate the frontend API client and React Query hooks.
+
+Business-critical behavior is enforced on the server. Order totals, prep-time estimates, menu availability checks, global ordering state, and order status transitions are not trusted to client-provided values.
+
+Shared UI components live in `packages/shared` and are reused across real application screens. The UI Library documents the chosen design tokens, typography, spacing, surfaces, component variants, and common application states.
+
+Tradeoffs / Incomplete Areas
+
+This assignment prioritizes the required restaurant management flows and typed API architecture over production-scale infrastructure.
+
+Some areas that would be expanded in a production system include:
+
+- authentication and authorization
+- pagination for large order and customer datasets
+- richer automated integration and end-to-end tests
+- transaction handling around multi-step order creation
+- accessibility and keyboard-navigation refinement
+- deployment and CI/CD configuration
+- more extensive shared form, modal, and notification primitives
+
+The current implementation is intended to demonstrate the required full-stack architecture, backend business rules, generated API contract, reusable UI, and core restaurant workflows.
+
 Development Notes
 
 The project intentionally keeps important business rules on the server rather than trusting client-provided values.
