@@ -1,11 +1,8 @@
 # Odyssey Restaurant Dashboard
 
-
 A full-stack restaurant management dashboard built as a monorepo using Expo, React Native Web, Hono, PostgreSQL, Drizzle ORM, OpenAPI, Orval, and React Query.
 
-
 ## Tech Stack
-
 
 ### Frontend
 - Expo
@@ -14,7 +11,6 @@ A full-stack restaurant management dashboard built as a monorepo using Expo, Rea
 - TypeScript
 - TanStack React Query
 - Orval-generated API client
-
 
 ### Backend
 - Hono
@@ -25,34 +21,33 @@ A full-stack restaurant management dashboard built as a monorepo using Expo, Rea
 - drizzle-zod
 - Zod OpenAPI
 
-
 ### Monorepo
 - pnpm workspaces
 - Turborepo
 
-
 ## Project Structure
-
 
 ```text
 apps/
   dashboard/          Expo + React Native Web dashboard
 
-
 services/
   backend/            Hono API running on Cloudflare Workers
-
 
 packages/
   api-client/         Orval-generated API client and React Query hooks
   shared/             Shared UI components
   types/              Shared type package
+
 Features
+
+
 Home
 Total orders
 Revenue
 Pending orders
 Popular menu items
+Shared KPI cards
 Orders
 Create orders
 Guest or registered customer selection
@@ -84,6 +79,7 @@ Name, email, and phone
 Customer order count
 Total spend
 Order history
+Recent order item details with quantities and line prices
 Guest order aggregation
 Menu
 View menu by category
@@ -108,11 +104,14 @@ When Ordering Enabled is disabled, new orders are rejected by the backend.
 
 UI Library
 
-Reusable components from the shared design-system package:
+The UI Library demonstrates reusable components from the shared design-system package:
 
 Button
 Card
 StatusBadge
+
+These components are also used throughout real application screens.
+
 Architecture
 
 The application follows this API/type flow:
@@ -135,7 +134,7 @@ React Query
 ↓
 Expo dashboard
 
-Frontend API request/response models are generated from the backend OpenAPI contract rather than manually duplicated.
+Frontend API request and response models are generated from the backend OpenAPI contract rather than manually duplicated.
 
 Database
 
@@ -148,9 +147,9 @@ orders
 order_items
 ordering_settings
 
-Order prices and estimated preparation times are calculated on the backend using the current menu item values.
+Order prices and estimated preparation times are calculated on the backend using menu item values.
 
-The calculated prep time is stored on the order so historical orders keep their original estimate even if menu prep times are changed later.
+The calculated preparation time is stored on the order so historical orders keep their original estimate even if menu prep times are changed later.
 
 Requirements
 Node.js
@@ -179,7 +178,7 @@ Do not commit real environment variables.
 
 Database Setup
 
-From:
+From the backend directory:
 
 cd services/backend
 
@@ -214,7 +213,7 @@ Then:
 cd packages/api-client
 pnpm generate
 
-Do not manually edit files inside:
+Do not manually edit generated files inside:
 
 packages/api-client/src/generated
 Running the Dashboard
@@ -228,41 +227,70 @@ http://localhost:8081
 If Metro has stale workspace output:
 
 pnpm exec expo start --web --clear
+Build
+
+From the repository root:
+
+pnpm build
+
+The dashboard web build uses Expo export and outputs the generated web build to:
+
+apps/dashboard/dist
 Typecheck
 
 From the repository root:
 
-pnpm turbo typecheck
+pnpm typecheck
 
-Or individually:
+This runs Turborepo typecheck tasks across the workspace.
+
+You can also run package checks individually.
+
+Backend:
 
 cd services/backend
 pnpm typecheck
+
+Dashboard:
+
 cd apps/dashboard
 pnpm typecheck
+
+API client:
+
 cd packages/api-client
 pnpm typecheck
+
+Shared components:
+
 cd packages/shared
 pnpm typecheck
 Tests
 
 Backend tests use Vitest.
 
-Run:
+From the repository root:
+
+pnpm test
+
+Or directly from the backend:
 
 cd services/backend
 pnpm test
 
-Current tests cover important business logic including:
+Tests cover important business logic including:
 
-valid order status transitions
-invalid order status transitions
-cancellation rules
-server-side order total calculation
-server-side estimated preparation time calculation
-missing menu item rejection
+Valid order status transitions
+Invalid order status transitions
+Cancellation rules
+Server-side order total calculation
+Server-side estimated preparation time calculation
+Missing menu item rejection
+
+Production backend routes use the same tested business-logic helpers.
+
 Business Rules
-Order totals
+Order Totals
 
 The frontend sends menu item IDs and quantities.
 
@@ -270,33 +298,45 @@ The backend looks up the actual menu prices and calculates the final total.
 
 The frontend does not control the persisted order total.
 
-Menu availability
+Preparation Time
+
+Each menu item has its own preparation time.
+
+When an order is created, the backend calculates:
+
+sum(prep time × quantity)
+
+and stores the resulting estimated preparation time on the order.
+
+Menu Availability
 
 Unavailable menu items are rejected when creating an order.
 
-Status transitions
+Status Transitions
 
 Order status changes are validated by backend business logic.
 
-For example:
+Examples of valid transitions:
 
 pending → accepted
 accepted → preparing
 preparing → ready
 ready → completed
 
-Invalid transitions are rejected.
+Active orders can also be cancelled where allowed.
 
-Auto accept
+Invalid transitions are rejected by the backend.
 
-If enabled:
+Auto Accept
+
+If Auto Accept Orders is enabled:
 
 new order → accepted
 
 Otherwise:
 
 new order → pending
-Ordering enabled
+Ordering Enabled
 
 If ordering is disabled, the backend rejects new orders.
 
@@ -306,12 +346,46 @@ Reusable components live in:
 
 packages/shared
 
-The dashboard uses shared UI components across multiple screens, while the UI Library page demonstrates the available component variants.
+The dashboard uses these shared components across real application screens:
+
+Button for primary, secondary, and danger actions
+Card for dashboard KPI and content panels
+StatusBadge for status display
+
+The UI Library page demonstrates the available shared component variants.
+
+API Client
+
+The frontend API layer is generated with Orval from the backend OpenAPI document.
+
+Generated React Query hooks are used for operations such as:
+
+Fetching the menu
+Fetching orders
+Fetching order details
+Creating orders
+Updating order status
+Fetching customers
+Fetching customer details
+Creating customers
+Fetching and updating settings
+Fetching dashboard summary data
+Creating and updating menu items
+
+This keeps frontend API types aligned with the backend contract.
 
 Development Notes
 
-This project intentionally keeps the frontend API layer generated from OpenAPI through Orval.
+The project intentionally keeps important business rules on the server rather than trusting client-provided values.
 
-Generated files should not be manually edited.
+Examples include:
 
-Backend business rules are kept server-side rather than trusting client-provided state such as order totals or unrestricted status changes.
+Order totals are calculated server-side
+Preparation estimates are calculated server-side
+Unavailable menu items cannot be ordered
+Ordering can be disabled globally
+Order status transitions are validated by the backend
+
+Generated API files should not be manually edited.
+
+Environment files and local secrets are ignored by Git.
