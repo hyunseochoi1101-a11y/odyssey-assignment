@@ -392,22 +392,44 @@ export function CRMScreen() {
                           </View>
                         </View>
 
-                        <Text
-                          style={styles.orderTotal}
-                        >
-                          $
-                          {(
-                            order.totalCents / 100
-                          ).toFixed(2)}
-                        </Text>
+                        <View style={styles.orderItems}>
+  {order.items.map((item) => (
+    <View
+      key={item.id}
+      style={styles.orderItemRow}
+    >
+      <Text style={styles.orderItemName}>
+        {item.quantity} × {item.name}
+      </Text>
 
-                        <Text
-                          style={styles.orderDate}
-                        >
-                          {new Date(
-                            order.createdAt
-                          ).toLocaleString()}
-                        </Text>
+      <Text style={styles.orderItemPrice}>
+        $
+        {(
+          item.lineTotalCents / 100
+        ).toFixed(2)}
+      </Text>
+    </View>
+  ))}
+</View>
+
+<View style={styles.orderTotalRow}>
+  <Text style={styles.orderTotalLabel}>
+    Total
+  </Text>
+
+  <Text style={styles.orderTotal}>
+    $
+    {(
+      order.totalCents / 100
+    ).toFixed(2)}
+  </Text>
+</View>
+
+<Text style={styles.orderDate}>
+  {new Date(
+    order.createdAt
+  ).toLocaleString()}
+</Text>
                       </View>
                     )
                   )
@@ -655,8 +677,7 @@ const styles = StyleSheet.create({
 
   orderTotal: {
     fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 5,
+    fontWeight: '700',
   },
 
   orderDate: {
@@ -674,4 +695,40 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 12,
   },
+  orderItems: {
+  marginBottom: 12,
+},
+
+orderItemRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  gap: 12,
+  paddingVertical: 5,
+},
+
+orderItemName: {
+  flex: 1,
+  fontSize: 13,
+},
+
+orderItemPrice: {
+  fontSize: 13,
+  fontWeight: '600',
+},
+
+orderTotalRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  borderTopWidth: 1,
+  borderTopColor: '#F0F1F3',
+  paddingTop: 10,
+  marginTop: 2,
+  marginBottom: 5,
+},
+
+orderTotalLabel: {
+  fontSize: 13,
+  fontWeight: '600',
+},
+
 })

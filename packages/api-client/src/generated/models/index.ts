@@ -10,6 +10,7 @@ export * from './getCustomers200CustomersItem';
 export * from './getCustomersId200';
 export * from './getCustomersId200Customer';
 export * from './getCustomersId200CustomerRecentOrdersItem';
+export * from './getCustomersId200CustomerRecentOrdersItemItemsItem';
 export * from './getCustomersId200CustomerRecentOrdersItemStatus';
 export * from './getMenu200';
 export * from './getMenu200CategoriesItem';

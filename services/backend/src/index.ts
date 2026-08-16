@@ -814,35 +814,83 @@ app.openapi(customerDetailRoute, async (c) => {
   const { id } = c.req.valid('param')
   const customerId = Number(id)
 
+  async function addItemsToOrders<
+    T extends {
+  id: number
+  status: OrderStatus
+  totalCents: number
+  createdAt: Date
+},
+  >(orderRows: T[]) {
+    return Promise.all(
+      orderRows.map(async (order) => {
+        const items = await db
+          .select({
+            id: orderItems.id,
+            name: menuItems.name,
+            quantity: orderItems.quantity,
+            unitPriceCents:
+              orderItems.unitPriceCents,
+          })
+          .from(orderItems)
+          .innerJoin(
+            menuItems,
+            eq(
+              orderItems.menuItemId,
+              menuItems.id
+            )
+          )
+          .where(
+            eq(orderItems.orderId, order.id)
+          )
+
+        return {
+          ...order,
+          items: items.map((item) => ({
+            ...item,
+            lineTotalCents:
+              item.unitPriceCents *
+              item.quantity,
+          })),
+        }
+      })
+    )
+  }
+
   if (customerId === 0) {
-  const guestOrders = await db
-    .select({
-      id: orders.id,
-      status: orders.status,
-      totalCents: orders.totalCents,
-      createdAt: orders.createdAt,
+    const guestOrders = await db
+      .select({
+        id: orders.id,
+        status: orders.status,
+        totalCents: orders.totalCents,
+        createdAt: orders.createdAt,
+      })
+      .from(orders)
+      .where(isNull(orders.customerId))
+      .orderBy(desc(orders.createdAt))
+
+    const recentOrders =
+      await addItemsToOrders(guestOrders)
+
+    const totalSpendCents =
+      guestOrders.reduce(
+        (total, order) =>
+          total + order.totalCents,
+        0
+      )
+
+    return c.json({
+      customer: {
+        id: 0,
+        name: 'Guest',
+        email: null,
+        phone: null,
+        orderCount: guestOrders.length,
+        totalSpendCents,
+        recentOrders,
+      },
     })
-    .from(orders)
-    .where(isNull(orders.customerId))
-    .orderBy(desc(orders.createdAt))
-
-  const totalSpendCents = guestOrders.reduce(
-    (total, order) => total + order.totalCents,
-    0
-  )
-
-  return c.json({
-    customer: {
-      id: 0,
-      name: 'Guest',
-      email: null,
-      phone: null,
-      orderCount: guestOrders.length,
-      totalSpendCents,
-      recentOrders: guestOrders,
-    },
-  })
-}
+  }
 
   const [customer] = await db
     .select()
@@ -867,20 +915,27 @@ app.openapi(customerDetailRoute, async (c) => {
       createdAt: orders.createdAt,
     })
     .from(orders)
-    .where(eq(orders.customerId, customerId))
+    .where(
+      eq(orders.customerId, customerId)
+    )
     .orderBy(desc(orders.createdAt))
 
-  const totalSpendCents = customerOrders.reduce(
-    (total, order) => total + order.totalCents,
-    0
-  )
+  const recentOrders =
+    await addItemsToOrders(customerOrders)
+
+  const totalSpendCents =
+    customerOrders.reduce(
+      (total, order) =>
+        total + order.totalCents,
+      0
+    )
 
   return c.json({
     customer: {
       ...customer,
       orderCount: customerOrders.length,
       totalSpendCents,
-      recentOrders: customerOrders,
+      recentOrders,
     },
   })
 })

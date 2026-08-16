@@ -211,13 +211,22 @@ export const customerDetailResponseSchema = z.object({
     totalSpendCents: z.number(),
 
     recentOrders: z.array(
+  z.object({
+    id: z.number(),
+    status: orderStatusSchema,
+    totalCents: z.number(),
+    createdAt: z.string(),
+    items: z.array(
       z.object({
         id: z.number(),
-        status: orderStatusSchema,
-        totalCents: z.number(),
-        createdAt: z.string().or(z.date()),
+        name: z.string(),
+        quantity: z.number(),
+        unitPriceCents: z.number(),
+        lineTotalCents: z.number(),
       })
     ),
+  })
+)
   }),
 })
 

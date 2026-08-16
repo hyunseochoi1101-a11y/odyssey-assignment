@@ -37,11 +37,6 @@ export function UILibraryScreen() {
               label="Danger"
               variant="danger"
             />
-
-            <Button
-              label="Disabled"
-              disabled
-            />
           </View>
         </Card>
       </View>
@@ -54,53 +49,25 @@ export function UILibraryScreen() {
         <Card>
           <View style={styles.row}>
             <StatusBadge status="pending" />
-
             <StatusBadge status="accepted" />
-
             <StatusBadge status="preparing" />
-
             <StatusBadge status="ready" />
-
             <StatusBadge status="completed" />
-
             <StatusBadge status="cancelled" />
-
-            <StatusBadge status="available" />
-
-            <StatusBadge status="unavailable" />
           </View>
         </Card>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>
-          Cards
+          Card
         </Text>
 
-        <View style={styles.cardGrid}>
-          <Card style={styles.exampleCard}>
-            <Text style={styles.cardTitle}>
-              Example Card
-            </Text>
-
-            <Text style={styles.cardText}>
-              Shared Card component with consistent
-              spacing, border, and radius.
-            </Text>
-          </Card>
-
-          <Card style={styles.exampleCard}>
-            <Text style={styles.cardTitle}>
-              Order Summary
-            </Text>
-
-            <Text style={styles.cardValue}>
-              $42.97
-            </Text>
-
-            <StatusBadge status="preparing" />
-          </Card>
-        </View>
+        <Card style={styles.exampleCard}>
+          <Text style={styles.cardTitle}>
+            Example Card
+          </Text>
+        </Card>
       </View>
     </ScrollView>
   )
@@ -140,12 +107,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 
-  cardGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-  },
-
   exampleCard: {
     width: 280,
   },
@@ -153,18 +114,5 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    marginBottom: 8,
-  },
-
-  cardText: {
-    fontSize: 14,
-    opacity: 0.6,
-    lineHeight: 20,
-  },
-
-  cardValue: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 12,
   },
 })

@@ -1,4 +1,5 @@
 import { useGetSummary } from 'api-client'
+import { Card } from 'shared/card'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 
 export function HomeScreen() {
@@ -30,45 +31,45 @@ export function HomeScreen() {
       </Text>
 
       <View style={styles.kpiGrid}>
-        <View style={styles.card}>
-          <Text style={styles.label}>Total Orders</Text>
-          <Text style={styles.value}>
-            {summary?.totalOrders ?? 0}
-          </Text>
-        </View>
+  <Card style={styles.kpiCard}>
+    <Text style={styles.label}>Total Orders</Text>
+    <Text style={styles.value}>
+      {summary?.totalOrders ?? 0}
+    </Text>
+  </Card>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>Revenue</Text>
-          <Text style={styles.value}>
-            ${((summary?.revenueCents ?? 0) / 100).toFixed(2)}
-          </Text>
-        </View>
+  <Card style={styles.kpiCard}>
+    <Text style={styles.label}>Revenue</Text>
+    <Text style={styles.value}>
+      ${((summary?.revenueCents ?? 0) / 100).toFixed(2)}
+    </Text>
+  </Card>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>Pending Orders</Text>
-          <Text style={styles.value}>
-            {summary?.pendingOrders ?? 0}
-          </Text>
-        </View>
-      </View>
+  <Card style={styles.kpiCard}>
+    <Text style={styles.label}>Pending Orders</Text>
+    <Text style={styles.value}>
+      {summary?.pendingOrders ?? 0}
+    </Text>
+  </Card>
+</View>
 
       <Text style={styles.sectionTitle}>Popular Items</Text>
 
-      <View style={styles.listCard}>
-        {summary?.popularItems.map((item, index) => (
-          <View key={item.name} style={styles.itemRow}>
-            <View>
-              <Text style={styles.itemName}>
-                {index + 1}. {item.name}
-              </Text>
-            </View>
-
-            <Text style={styles.quantity}>
-              {item.quantitySold} sold
-            </Text>
-          </View>
-        ))}
+      <Card>
+  {summary?.popularItems.map((item, index) => (
+    <View key={item.name} style={styles.itemRow}>
+      <View>
+        <Text style={styles.itemName}>
+          {index + 1}. {item.name}
+        </Text>
       </View>
+
+      <Text style={styles.quantity}>
+        {item.quantitySold} sold
+      </Text>
+    </View>
+  ))}
+</Card>
     </ScrollView>
   )
 }
@@ -98,15 +99,6 @@ const styles = StyleSheet.create({
     marginBottom: 36,
     flexWrap: 'wrap',
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    padding: 20,
-    minWidth: 200,
-    flex: 1,
-  },
   label: {
     fontSize: 14,
     opacity: 0.6,
@@ -121,12 +113,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 12,
   },
-  listCard: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-  },
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -134,6 +120,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F0F1F3',
   },
+  kpiCard: {
+  minWidth: 200,
+  flex: 1,
+},
   itemName: {
     fontSize: 15,
     fontWeight: '500',

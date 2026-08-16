@@ -240,6 +240,11 @@ export function OrdersScreen() {
 
           <Button
   label={showCreateOrder ? 'Close' : '+ Create Order'}
+  variant={
+    showCreateOrder
+      ? 'secondary'
+      : undefined
+  }
   onPress={() => {
     setShowCreateOrder(!showCreateOrder)
     setSelectedOrderId(null)
@@ -758,170 +763,115 @@ export function OrdersScreen() {
           ) : null}
 
           <View style={styles.actions}>
-            {selectedOrder.status ===
-            'pending' ? (
-              <>
-                <ActionButton
-                  label="Accept order"
-                  disabled={
-                    statusMutation.isPending
-                  }
-                  onPress={() =>
-                    updateStatus(
-                      selectedOrder.id,
-                      'accepted'
-                    )
-                  }
-                />
+  {selectedOrder.status === 'pending' ? (
+    <>
+      <Button
+        label="Accept order"
+        disabled={statusMutation.isPending}
+        onPress={() =>
+          updateStatus(
+            selectedOrder.id,
+            'accepted'
+          )
+        }
+      />
 
-                <ActionButton
-                  label="Cancel order"
-                  secondary
-                  disabled={
-                    statusMutation.isPending
-                  }
-                  onPress={() =>
-                    updateStatus(
-                      selectedOrder.id,
-                      'cancelled'
-                    )
-                  }
-                />
-              </>
-            ) : null}
+      <Button
+        label="Cancel order"
+        variant="danger"
+        disabled={statusMutation.isPending}
+        onPress={() =>
+          updateStatus(
+            selectedOrder.id,
+            'cancelled'
+          )
+        }
+      />
+    </>
+  ) : null}
 
-            {selectedOrder.status ===
-            'accepted' ? (
-              <>
-                <ActionButton
-                  label="Start preparing"
-                  disabled={
-                    statusMutation.isPending
-                  }
-                  onPress={() =>
-                    updateStatus(
-                      selectedOrder.id,
-                      'preparing'
-                    )
-                  }
-                />
+  {selectedOrder.status === 'accepted' ? (
+    <>
+      <Button
+        label="Start preparing"
+        disabled={statusMutation.isPending}
+        onPress={() =>
+          updateStatus(
+            selectedOrder.id,
+            'preparing'
+          )
+        }
+      />
 
-                <ActionButton
-                  label="Cancel order"
-                  secondary
-                  disabled={
-                    statusMutation.isPending
-                  }
-                  onPress={() =>
-                    updateStatus(
-                      selectedOrder.id,
-                      'cancelled'
-                    )
-                  }
-                />
-              </>
-            ) : null}
+      <Button
+        label="Cancel order"
+        variant="danger"
+        disabled={statusMutation.isPending}
+        onPress={() =>
+          updateStatus(
+            selectedOrder.id,
+            'cancelled'
+          )
+        }
+      />
+    </>
+  ) : null}
 
-            {selectedOrder.status ===
-            'preparing' ? (
-              <>
-                <ActionButton
-                  label="Mark ready"
-                  disabled={
-                    statusMutation.isPending
-                  }
-                  onPress={() =>
-                    updateStatus(
-                      selectedOrder.id,
-                      'ready'
-                    )
-                  }
-                />
+  {selectedOrder.status === 'preparing' ? (
+    <>
+      <Button
+        label="Mark ready"
+        disabled={statusMutation.isPending}
+        onPress={() =>
+          updateStatus(
+            selectedOrder.id,
+            'ready'
+          )
+        }
+      />
 
-                <ActionButton
-                  label="Cancel order"
-                  secondary
-                  disabled={
-                    statusMutation.isPending
-                  }
-                  onPress={() =>
-                    updateStatus(
-                      selectedOrder.id,
-                      'cancelled'
-                    )
-                  }
-                />
-              </>
-            ) : null}
+      <Button
+        label="Cancel order"
+        variant="danger"
+        disabled={statusMutation.isPending}
+        onPress={() =>
+          updateStatus(
+            selectedOrder.id,
+            'cancelled'
+          )
+        }
+      />
+    </>
+  ) : null}
 
-            {selectedOrder.status === 'ready' ? (
-              <ActionButton
-                label="Complete order"
-                disabled={
-                  statusMutation.isPending
-                }
-                onPress={() =>
-                  updateStatus(
-                    selectedOrder.id,
-                    'completed'
-                  )
-                }
-              />
-            ) : null}
+  {selectedOrder.status === 'ready' ? (
+    <Button
+      label="Complete order"
+      disabled={statusMutation.isPending}
+      onPress={() =>
+        updateStatus(
+          selectedOrder.id,
+          'completed'
+        )
+      }
+    />
+  ) : null}
 
-            {selectedOrder.status ===
-            'completed' ? (
-              <Text style={styles.finishedText}>
-                This order is completed.
-              </Text>
-            ) : null}
+  {selectedOrder.status === 'completed' ? (
+    <Text style={styles.finishedText}>
+      This order is completed.
+    </Text>
+  ) : null}
 
-            {selectedOrder.status ===
-            'cancelled' ? (
-              <Text style={styles.finishedText}>
-                This order is cancelled.
-              </Text>
-            ) : null}
-          </View>
+  {selectedOrder.status === 'cancelled' ? (
+    <Text style={styles.finishedText}>
+      This order is cancelled.
+    </Text>
+  ) : null}
+</View>
         </ScrollView>
       ) : null}
     </View>
-  )
-}
-
-function ActionButton({
-  label,
-  onPress,
-  secondary = false,
-  disabled = false,
-}: {
-  label: string
-  onPress: () => void
-  secondary?: boolean
-  disabled?: boolean
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      style={[
-        styles.actionButton,
-        secondary &&
-          styles.actionButtonSecondary,
-        disabled &&
-          styles.actionButtonDisabled,
-      ]}
-    >
-      <Text
-        style={[
-          styles.actionButtonText,
-          secondary &&
-            styles.actionButtonTextSecondary,
-        ]}
-      >
-        {label}
-      </Text>
-    </Pressable>
   )
 }
 
@@ -1328,32 +1278,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     gap: 10,
     paddingBottom: 30,
-  },
-
-  actionButton: {
-    backgroundColor: '#111827',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-
-  actionButtonSecondary: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-  },
-
-  actionButtonDisabled: {
-    opacity: 0.45,
-  },
-
-  actionButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-
-  actionButtonTextSecondary: {
-    color: '#111827',
   },
 
   finishedText: {

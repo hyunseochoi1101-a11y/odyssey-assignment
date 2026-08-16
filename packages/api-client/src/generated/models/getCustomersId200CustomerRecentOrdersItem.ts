@@ -4,6 +4,7 @@
  * Odyssey Restaurant API
  * OpenAPI spec version: 1.0.0
  */
+import type { GetCustomersId200CustomerRecentOrdersItemItemsItem } from './getCustomersId200CustomerRecentOrdersItemItemsItem';
 import type { GetCustomersId200CustomerRecentOrdersItemStatus } from './getCustomersId200CustomerRecentOrdersItemStatus';
 
 export type GetCustomersId200CustomerRecentOrdersItem = {
@@ -11,4 +12,5 @@ export type GetCustomersId200CustomerRecentOrdersItem = {
   status: GetCustomersId200CustomerRecentOrdersItemStatus;
   totalCents: number;
   createdAt: string;
+  items: GetCustomersId200CustomerRecentOrdersItemItemsItem[];
 };
